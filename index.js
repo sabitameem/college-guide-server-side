@@ -30,6 +30,7 @@ async function run() {
     const submittedCollegeCollection = client
       .db("collegeGuideDb")
       .collection("submittedData");
+      const reviewCollection = client.db("collegeGuideDb").collection("reviewData")
 
     app.get("/collegedata", async (req, res) => {
       // res.send('hello')
@@ -47,6 +48,14 @@ async function run() {
       res.send(detailsInfo);
 
     })
+
+
+
+    // app.post('review',async(req,res)=>{
+    //   const submittedData = req.body;
+    //   const result = await submittedCollegeCollection.insertOne(submittedData);
+    //   res.send(result)
+    // })
 
     app.post("/submit", async (req, res) => {
       try {
@@ -66,6 +75,41 @@ async function run() {
       }
     });
 
+    app.post("/review", async (req, res) => {
+      try {
+        const reviewData = req.body; // Assuming the request body contains the candidate information
+    
+        // Store the submitted data in the "submittedCollegeCollection" collection
+        const result = await reviewCollection.insertOne(reviewData);
+    
+        if (result.insertedCount === 1) {
+          res.status(201).json({ message: "Data submitted successfully" });
+        } else {
+          res.status(500).json({ message: "Failed to submit data" });
+        }
+      } catch (error) {
+        console.error("Error submitting data:", error);
+        res.status(500).json({ message: "Failed to submit data" });
+      }
+    });
+
+    
+    // app.get('/submit', async(req,res)=>{
+    //   console.log(req.query.email);
+    //   let query = {};
+    //   if (req.query?.email) {
+    //     query = { email: req.query.email };
+    //   }
+    //   const result =await submittedCollegeCollection.find(query).toArray();
+    //   res.send(result)
+    // })
+
+    app.get('/review', async(req,res)=>{
+      const result =await reviewCollection.find().toArray();
+      res.send(result);
+    })
+    
+
     app.get('/submit', async(req,res)=>{
       const email = req.query.email;
       // res.send(email)
@@ -76,7 +120,6 @@ async function run() {
       const result =await submittedCollegeCollection.find(query).toArray();
       res.send(result)
     })
-    
 
 
 
